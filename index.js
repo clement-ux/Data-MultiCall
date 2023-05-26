@@ -18,15 +18,15 @@ const addressesList = [
     "0x8a8743AFC23769d5B27Fb22af510DA3147BB9A55", // Humpy 2
     "0x9e9f535Da358Bf4f9cDc10A3D690DCF981956F68", // Humpy 3
     "0xc407e861f5a16256534B0c92fDD8220A35831840", // Humpy 4
-    /*"0xc0a893145aD461AF44241A7DB5bb99B8998e7d2c", // Humpy 5
+    "0xc0a893145aD461AF44241A7DB5bb99B8998e7d2c", // Humpy 5
     "0xAE0BAF66E8f5Bb87A6fd54066e469cDfE93212Ec", // Humpy 6
     "0x014E61311e4DD2364CF6c0868C9978C5887deca8", // Humpy 7
     "0x1E7267fA2628d66538822Fc44f0EDb62b07272A4", // Humpy 8
-    "0x8b781a032c0FF967d2786A66afB1dbd5128FC382", // Humpy 9*/
+    "0x8b781a032c0FF967d2786A66afB1dbd5128FC382", // Humpy 9
 ]
 
 // Names for the addresses above (not necessary)
-const addressesNameList = ["Humpy 1", "Humpy 2", "Humpy 3", "Humpy 4", "Humpy 5", "Humpy 6", "Humpy 7", "Humpy 8", "Humpy 9"]
+const addressesNameList = ["Humpy 1", "Humpy 2", "Humpy 3", "Humpy 4", "Humpy 5", "Humpy 6", "Humpy 7", "Humpy !", "Humpy 9"]
 
 const gaugeController = "0xC128468b7Ce63eA702C1f104D55A2566b13D3ABD";
 
@@ -35,7 +35,7 @@ const gaugeController = "0xC128468b7Ce63eA702C1f104D55A2566b13D3ABD";
 const timestamp = 0;
 
 // RPC node to use for the Ethereum mainnet
-const rpcNode = "https://eth.llamarpc.com";
+const rpcNode = "https://ethereum.publicnode.com"//"https://eth.llamarpc.com";
 
 /**
  * 
@@ -91,10 +91,10 @@ const multicall = new Multicall({ ethersProvider: provider, tryAggregate: true }
 const gaugeMultiCall = gaugeList.map((gauge) => {
     // Create a contract call context for each address
     const balanceOfCall = addressesList.map((address) => {
-        return { reference: "blanceOf: " + addressesNameMapping[address], methodName: 'balanceOf', methodParameters: [address] }
+        return { reference: "blanceOf: " + (addressesNameMapping[address] != undefined ? addressesNameMapping[address] : address), methodName: 'balanceOf', methodParameters: [address] }
     })
     const workingBalancefCall = addressesList.map((address) => {
-        return { reference: "workingBlances: " + addressesNameMapping[address], methodName: 'working_balances', methodParameters: [address] }
+        return { reference: "workingBlances: " + (addressesNameMapping[address] != undefined ? addressesNameMapping[address] : address), methodName: 'working_balances', methodParameters: [address] }
     })
 
     return {
@@ -125,10 +125,10 @@ const gaugeMultiCall = gaugeList.map((gauge) => {
 const gaugeControllerMultiCall = gaugeList.map((gauge) => {
     // Create a contract call context for each address
     const lastUserVoteCall = addressesList.map((address) => {
-        return { reference: "lastTimeUserVote: " + addressesNameMapping[address], methodName: 'last_user_vote', methodParameters: [address, gauge] }
+        return { reference: "lastTimeUserVote: " + (addressesNameMapping[address] != undefined ? addressesNameMapping[address] : address), methodName: 'last_user_vote', methodParameters: [address, gauge] }
     })
     const voteSlopeCall = addressesList.map((address) => {
-        return { reference: "voteWeight: " + addressesNameMapping[address], methodName: 'vote_user_slopes', methodParameters: [address, gauge] }
+        return { reference: "voteWeight: " + (addressesNameMapping[address] != undefined ? addressesNameMapping[address] : address), methodName: 'vote_user_slopes', methodParameters: [address, gauge] }
     })
 
     return {

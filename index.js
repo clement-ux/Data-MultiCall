@@ -26,7 +26,7 @@ const addressesList = [
 ]
 
 // Names for the addresses above (not necessary)
-const addressesNameList = ["Humpy 1", "Humpy 2", "Humpy 3", "Humpy 4", "Humpy 5", "Humpy 6", "Humpy 7", "Humpy !", "Humpy 9"]
+const addressesNameList = ["Humpy 1", "Humpy 2", "Humpy 3", "Humpy 4", "Humpy 5", "Humpy 6", "Humpy 7", "Humpy 8", "Humpy 9"]
 
 const gaugeController = "0xC128468b7Ce63eA702C1f104D55A2566b13D3ABD";
 
@@ -36,6 +36,8 @@ const timestamp = 0;
 
 // RPC node to use for the Ethereum mainnet
 const rpcNode = "https://ethereum.publicnode.com"//"https://eth.llamarpc.com";
+
+// getCappedRelativeWeight and getRelativeWeightCap are given in percentage
 
 /**
  * 
@@ -91,7 +93,7 @@ const multicall = new Multicall({ ethersProvider: provider, tryAggregate: true }
 const gaugeMultiCall = gaugeList.map((gauge) => {
     // Create a contract call context for each address
     const balanceOfCall = addressesList.map((address) => {
-        return { reference: "blanceOf: " + (addressesNameMapping[address] != undefined ? addressesNameMapping[address] : address), methodName: 'balanceOf', methodParameters: [address] }
+        return { reference: "balanceOf: " + (addressesNameMapping[address] != undefined ? addressesNameMapping[address] : address), methodName: 'balanceOf', methodParameters: [address] }
     })
     const workingBalancefCall = addressesList.map((address) => {
         return { reference: "workingBlances: " + (addressesNameMapping[address] != undefined ? addressesNameMapping[address] : address), methodName: 'working_balances', methodParameters: [address] }
@@ -125,7 +127,7 @@ const gaugeMultiCall = gaugeList.map((gauge) => {
 const gaugeControllerMultiCall = gaugeList.map((gauge) => {
     // Create a contract call context for each address
     const lastUserVoteCall = addressesList.map((address) => {
-        return { reference: "lastTimeUserVote: " + (addressesNameMapping[address] != undefined ? addressesNameMapping[address] : address), methodName: 'last_user_vote', methodParameters: [address, gauge] }
+        return { reference: "nextVoteUnlock: " + (addressesNameMapping[address] != undefined ? addressesNameMapping[address] : address), methodName: 'last_user_vote', methodParameters: [address, gauge] }
     })
     const voteSlopeCall = addressesList.map((address) => {
         return { reference: "voteWeight: " + (addressesNameMapping[address] != undefined ? addressesNameMapping[address] : address), methodName: 'vote_user_slopes', methodParameters: [address, gauge] }
@@ -177,8 +179,10 @@ Object.keys(results.results).forEach((key) => {
     results2.results[key].callsReturnContext.forEach((call) => {
         if (call.reference.includes("voteWeight")) {
             objectResults[name][call.reference] = getVotingPower(call.returnValues[0], call.returnValues[2], convertToCurrentPeriod(ts));
+        } else if (call.reference.includes("lastTimeUserVote")) {
+            objectResults[name][call.reference] = format(call.returnValues[0], call.methodName);
         }
-        else objectResults[name][call.reference] = parseFloat(ethers.utils.formatUnits(call.returnValues[0], 0));
+        else objectResults[name][call.reference] = format(call.returnValues[0], call.methodName);//parseFloat(ethers.utils.formatUnits(call.returnValues[0], 0));
     });
 
 });
@@ -207,10 +211,15 @@ function removeWords(text) {
 function format(value, method) {
     switch (value.type) {
         case "BigNumber":
-            if (method == "getCappedRelativeWeight" || method == 'getRelativeWeightCap') return parseFloat(ethers.utils.formatUnits(value, 0));
+            if (method == "getCappedRelativeWeight" || method == 'getRelativeWeightCap') return parseFloat(ethers.utils.formatUnits(value, 15));
+            if (method == "last_user_vote" && ethers.utils.formatUnits(value, 0) != 0) {
+                const date = new Date((parseFloat(ethers.utils.formatUnits(value, 0)) + 10 * 24 * 60 * 60) * 1000);
+                return date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+            }
             else return parseFloat(ethers.utils.formatEther(value));
         default:
             return value;
+
     }
 }
 

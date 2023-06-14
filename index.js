@@ -35,7 +35,7 @@ const gaugeController = "0xC128468b7Ce63eA702C1f104D55A2566b13D3ABD";
 const timestamp = 0;
 
 // RPC node to use for the Ethereum mainnet
-const rpcNode = "https://ethereum.publicnode.com"//"https://eth.llamarpc.com";
+const rpcNode = "https://eth.llamarpc.com"; // "https://ethereum.publicnode.com"
 
 // getCappedRelativeWeight and getRelativeWeightCap are given in percentage
 
